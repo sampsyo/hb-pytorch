@@ -136,7 +136,7 @@ inline void hb_foreach_unroll2(HBTensor<scalar_t> res,
     //-----------------------------
     size_t start = 0;
     size_t end = res.numel();
-    for (size_t idx = start; idx < end; idx++) {
+    for (size_t idx = start; idx < end; idx = idx + 2) {
       scalar_t* res_dp = (scalar_t*)(data[0] + offset_calc(idx, res));
       scalar_t* input_dp = (scalar_t*)(data[1] + offset_calc(idx, input));
       scalar_t* other_dp = (scalar_t*)(data[2] + offset_calc(idx, other));
@@ -150,7 +150,7 @@ inline void hb_foreach_unroll2(HBTensor<scalar_t> res,
 }
 
 // =========================================================
-// Elementwise for -- Binary ops -- unroll2
+// Elementwise for -- Binary ops -- unroll4
 // =========================================================
 
 template<typename scalar_t, typename F>
@@ -179,7 +179,7 @@ inline void hb_foreach_unroll4(HBTensor<scalar_t> res,
     //-----------------------------
     size_t start = 0;
     size_t end = res.numel();
-    for (size_t idx = start; idx < end; idx = idx + 2) {
+    for (size_t idx = start; idx < end; idx = idx + 4) {
       scalar_t* res_dp = (scalar_t*)(data[0]);
       scalar_t* input_dp = (scalar_t*)(data[1]);
       scalar_t* other_dp = (scalar_t*)(data[2]);
@@ -215,7 +215,7 @@ inline void hb_foreach_unroll4(HBTensor<scalar_t> res,
     //-----------------------------
     size_t start = 0;
     size_t end = res.numel();
-    for (size_t idx = start; idx < end; idx += 2) {
+    for (size_t idx = start; idx < end; idx = idx + 4) {
       scalar_t* res_dp = (scalar_t*)(data[0] + offset_calc(idx, res));
       scalar_t* input_dp = (scalar_t*)(data[1] + offset_calc(idx, input));
       scalar_t* other_dp = (scalar_t*)(data[2] + offset_calc(idx, other));
@@ -426,7 +426,7 @@ inline void hb_parallel_foreach_unroll2(HBTensor<scalar_t> res,
     data[0] += strides[0] * start;
     data[1] += strides[1] * start;
     data[2] += strides[2] * start;
-    for (size_t idx = start; idx < end; idx += 2) {
+    for (size_t idx = start; idx < end; idx = idx + 2) {
       scalar_t* res_dp = (scalar_t*)(data[0]);
       scalar_t* input_dp = (scalar_t*)(data[1]);
       scalar_t* other_dp = (scalar_t*)(data[2]);
@@ -450,7 +450,7 @@ inline void hb_parallel_foreach_unroll2(HBTensor<scalar_t> res,
     size_t start = len_per_tile * __bsg_id;
     size_t end = start + len_per_tile;
     end = (end > res.numel())  ? res.numel() : end;
-    for (size_t idx = start; idx < end; idx += 2) {
+    for (size_t idx = start; idx < end; idx = idx + 2) {
       scalar_t* res_dp = (scalar_t*)(data[0] + offset_calc(idx, res));
       scalar_t* input_dp = (scalar_t*)(data[1] + offset_calc(idx, input));
       scalar_t* other_dp = (scalar_t*)(data[2] + offset_calc(idx, other));
@@ -463,6 +463,101 @@ inline void hb_parallel_foreach_unroll2(HBTensor<scalar_t> res,
   }
 }
 
+// =========================================================
+// Tile Element-wise for -- Binary ops -- unroll 4
+//
+// This function calculates the per tile range automatically
+//==========================================================
+
+template<typename scalar_t, typename F>
+inline void hb_parallel_foreach_unroll4(HBTensor<scalar_t> res,
+                               HBTensor<scalar_t> input,
+                               HBTensor<scalar_t> other,
+                               F functor) {
+  char* data[3];
+  data[0] = res.data_ptr();
+  data[1] = input.data_ptr();
+  data[2] = other.data_ptr();
+
+  // is_trivial_1d
+  if(res.ndim() == 1) {
+
+    //-----------------------------
+    // collect metadata
+    //-----------------------------
+    uint32_t strides[3];
+    strides[0] = (res.get_strides())[0];
+    strides[1] = (input.get_strides())[0];
+    strides[2] = (other.get_strides())[0];
+
+    //-----------------------------
+    // iterating over all elementes
+    //-----------------------------
+    size_t len_per_tile = res.numel() / (bsg_tiles_X * bsg_tiles_Y) + 1;
+    size_t start = len_per_tile * __bsg_id;
+    size_t end = start + len_per_tile;
+    end = (end > res.numel())  ? res.numel() : end;
+    data[0] += strides[0] * start;
+    data[1] += strides[1] * start;
+    data[2] += strides[2] * start;
+    for (size_t idx = start; idx < end; idx = idx + 4) {
+      scalar_t* res_dp = (scalar_t*)(data[0]);
+      scalar_t* input_dp = (scalar_t*)(data[1]);
+      scalar_t* other_dp = (scalar_t*)(data[2]);
+      *res_dp = functor(*input_dp, *other_dp);
+      data[0] += strides[0];
+      data[1] += strides[1];
+      data[2] += strides[2];
+      res_dp = (scalar_t*)(data[0]);
+      input_dp = (scalar_t*)(data[1]);
+      other_dp = (scalar_t*)(data[2]);
+      *res_dp = functor(*input_dp, *other_dp);
+      data[0] += strides[0];
+      data[1] += strides[1];
+      data[2] += strides[2];
+      res_dp = (scalar_t*)(data[0]);
+      input_dp = (scalar_t*)(data[1]);
+      other_dp = (scalar_t*)(data[2]);
+      *res_dp = functor(*input_dp, *other_dp);
+      data[0] += strides[0];
+      data[1] += strides[1];
+      data[2] += strides[2];
+      res_dp = (scalar_t*)(data[0]);
+      input_dp = (scalar_t*)(data[1]);
+      other_dp = (scalar_t*)(data[2]);
+      *res_dp = functor(*input_dp, *other_dp);
+      data[0] += strides[0];
+      data[1] += strides[1];
+      data[2] += strides[2];
+    }
+  } else {
+    //-----------------------------
+    // iterating over all elementes
+    //-----------------------------
+    size_t len_per_tile = res.numel() / (bsg_tiles_X * bsg_tiles_Y) + 1;
+    size_t start = len_per_tile * __bsg_id;
+    size_t end = start + len_per_tile;
+    end = (end > res.numel())  ? res.numel() : end;
+    for (size_t idx = start; idx < end; idx = idx + 4) {
+      scalar_t* res_dp = (scalar_t*)(data[0] + offset_calc(idx, res));
+      scalar_t* input_dp = (scalar_t*)(data[1] + offset_calc(idx, input));
+      scalar_t* other_dp = (scalar_t*)(data[2] + offset_calc(idx, other));
+      *res_dp = functor(*input_dp, *other_dp);
+      res_dp = (scalar_t*)(data[0] + offset_calc(idx, res));
+      input_dp = (scalar_t*)(data[1] + offset_calc(idx, input));
+      other_dp = (scalar_t*)(data[2] + offset_calc(idx, other));
+      *res_dp = functor(*input_dp, *other_dp);
+      res_dp = (scalar_t*)(data[0] + offset_calc(idx, res));
+      input_dp = (scalar_t*)(data[1] + offset_calc(idx, input));
+      other_dp = (scalar_t*)(data[2] + offset_calc(idx, other));
+      *res_dp = functor(*input_dp, *other_dp);
+      res_dp = (scalar_t*)(data[0] + offset_calc(idx, res));
+      input_dp = (scalar_t*)(data[1] + offset_calc(idx, input));
+      other_dp = (scalar_t*)(data[2] + offset_calc(idx, other));
+      *res_dp = functor(*input_dp, *other_dp);
+    }
+  }
+}
 
 // =========================================================
 // Tile Element-wise for -- Unary ops

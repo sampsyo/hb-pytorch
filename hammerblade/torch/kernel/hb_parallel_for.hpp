@@ -122,13 +122,13 @@ inline void hb_foreach_unroll2(HBTensor<scalar_t> res,
       data[0] += strides[0];
       data[1] += strides[1];
       data[2] += strides[2];
-      res_dp = (scalar_t*)(data[0]);
-      input_dp = (scalar_t*)(data[1]);
-      other_dp = (scalar_t*)(data[2]);
-      *res_dp = functor(*input_dp, *other_dp);
-      data[0] += strides[0];
-      data[1] += strides[1];
-      data[2] += strides[2];
+      // res_dp = (scalar_t*)(data[0]);
+      // input_dp = (scalar_t*)(data[1]);
+      // other_dp = (scalar_t*)(data[2]);
+      // *res_dp = functor(*input_dp, *other_dp);
+      // data[0] += strides[0];
+      // data[1] += strides[1];
+      // data[2] += strides[2];
     }
   } else {
     //-----------------------------

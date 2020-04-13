@@ -31,9 +31,9 @@ def _test_add(x1, x2):
     # assert h1.device == torch.device("hammerblade")
     # assert torch.allclose(x1, h1.cpu())
 
-def test_add_4():
-    x1 = torch.rand(4)
-    x2 = torch.rand(4)
+def test_add_8():
+    x1 = torch.rand(8)
+    x2 = torch.rand(8)
     _test_add(x1, x2)
 
 def test_add_64():

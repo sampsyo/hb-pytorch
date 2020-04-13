@@ -22,7 +22,7 @@ extern "C" {
 
     bsg_cuda_print_stat_kernel_start();
 
-    hb_parallel_foreach_unroll2(c, a, b,
+    hb_parallel_foreach_unroll4(c, a, b,
       [&](float a, float b) {
         return a + alpha * b;
     });

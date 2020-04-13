@@ -114,7 +114,7 @@ inline void hb_foreach_unroll2(HBTensor<scalar_t> res,
     //-----------------------------
     size_t start = 0;
     size_t end = res.numel();
-    for (size_t idx = start; idx < end; idx++) {
+    for (size_t idx = start; idx < end; idx = idx + 2) {
       scalar_t* res_dp = (scalar_t*)(data[0]);
       scalar_t* input_dp = (scalar_t*)(data[1]);
       scalar_t* other_dp = (scalar_t*)(data[2]);
@@ -122,10 +122,10 @@ inline void hb_foreach_unroll2(HBTensor<scalar_t> res,
       data[0] += strides[0];
       data[1] += strides[1];
       data[2] += strides[2];
-      scalar_t* res_dp_1 = (scalar_t*)(data[0]);
-      scalar_t* input_dp_1 = (scalar_t*)(data[1]);
-      scalar_t* other_dp_1 = (scalar_t*)(data[2]);
-      *res_dp_1 = functor(*input_dp_1, *other_dp_1);
+      res_dp = (scalar_t*)(data[0]);
+      input_dp = (scalar_t*)(data[1]);
+      other_dp = (scalar_t*)(data[2]);
+      *res_dp = functor(*input_dp, *other_dp);
       data[0] += strides[0];
       data[1] += strides[1];
       data[2] += strides[2];

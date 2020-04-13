@@ -109,24 +109,26 @@ inline void hb_foreach_unroll2(HBTensor<scalar_t> res,
     strides[1] = (input.get_strides())[0];
     strides[2] = (other.get_strides())[0];
 
-    scalar_t* res_dp = (scalar_t*)(data[0]);
-    scalar_t* input_dp = (scalar_t*)(data[1]);
-    scalar_t* other_dp = (scalar_t*)(data[2]);
-
     //-----------------------------
     // iterating over all elementes
     //-----------------------------
     size_t start = 0;
     size_t end = res.numel();
     for (size_t idx = start; idx < end; idx++) {
+      scalar_t* res_dp = (scalar_t*)(data[0]);
+      scalar_t* input_dp = (scalar_t*)(data[1]);
+      scalar_t* other_dp = (scalar_t*)(data[2]);
       *res_dp = functor(*input_dp, *other_dp);
-      res_dp = (scalar_t*)(data[0] + strides[0]);
-      input_dp = (scalar_t*)(data[1] + strides[1]);
-      other_dp = (scalar_t*)(data[2] + strides[2]);
+      data[0] += strides[0];
+      data[1] += strides[1];
+      data[2] += strides[2];
+      res_dp = (scalar_t*)(data[0]);
+      input_dp = (scalar_t*)(data[1]);
+      other_dp = (scalar_t*)(data[2]);
       *res_dp = functor(*input_dp, *other_dp);
-      res_dp = (scalar_t*)(data[0] + strides[0]);
-      input_dp = (scalar_t*)(data[1] + strides[1]);
-      other_dp = (scalar_t*)(data[2] + strides[2]);
+      data[0] += strides[0];
+      data[1] += strides[1];
+      data[2] += strides[2];
     }
   } else {
     //-----------------------------

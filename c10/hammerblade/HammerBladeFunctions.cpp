@@ -5,6 +5,7 @@
 #include <string>
 
 #include <time.h>
+#include <iostream>
 
 namespace c10 {
 namespace hammerblade {
@@ -96,7 +97,9 @@ void offload_kernel(const char* kernel, std::vector<eva_t> args) {
 
   clock_t start_time = clock();
   C10_HB_CHECK(hb_mc_device_tile_groups_execute(&_hb_device));
-  TORCH_WARN("Execution time of ", kernel, " ", clock() - start_time);
+  std::cout << "Execution time of " << kernel << " = "
+            << ((float) (clock() - start_time) / (float) CLOCKS_PER_SEC) * 1000.0
+            << "ms" << std::endl;
 
   free(cuda_argv);
 }

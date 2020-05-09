@@ -51,12 +51,15 @@ void offload_tensor_scalar_impl(std::vector<Tensor> tensors,
 // Offload routine for device to device transfers
 void offload_memcpy(eva_t dest, eva_t src, uint32_t n) {
   std::vector<eva_t> device_args;
+  std::vector<eva_t> device_ptrs;
 
   device_args.push_back(dest);
   device_args.push_back(src);
   device_args.push_back(create_device_scalar(n));
 
   c10::hammerblade::offload_kernel("tensorlib_memcpy", device_args);
+
+  cleanup_device(device_args, device_ptrs);
 }
 
 // Offload routine for device to device transfers when input is an iter

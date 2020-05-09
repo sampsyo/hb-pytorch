@@ -95,11 +95,7 @@ void offload_kernel(const char* kernel, std::vector<eva_t> args) {
   C10_HB_CHECK(hb_mc_kernel_enqueue(&_hb_device, _hb_grid_dim, _hb_tg_dim, kernel,
                                     args.size(), cuda_argv));
 
-  clock_t start_time = clock();
   C10_HB_CHECK(hb_mc_device_tile_groups_execute(&_hb_device));
-  std::cout << "Execution time of " << kernel << " = "
-            << ((float) (clock() - start_time) / (float) CLOCKS_PER_SEC) * 1000.0
-            << "ms" << std::endl;
 
   free(cuda_argv);
 }

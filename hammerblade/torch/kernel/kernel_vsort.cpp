@@ -7,8 +7,8 @@
 #include <kernel_common.hpp>
 
 // Helper function to perform Merge Sort
-void merge(
-	HBTensor<float>* result_p, 
+static void merge(
+	HBTensor<float>* tmp_p, 
 	HBTensor<float>* vec0,
 	int32_t begin0,
 	int32_t end0,
@@ -20,26 +20,27 @@ void merge(
 	int32_t idx1 = begin1;
 	for (size_t i = 0; i < size; i++) {
 		if ( idx0 == end0 ) {
-			(*result_p)(i) = (*vec1)(idx1);
+			(*tmp_p)(i) = (*vec1)(idx1);
 			idx1 ++;
 		}
 		else if ( idx1 == end1 ) {
-			(*result_p)(i) = (*vec0)(idx0);
+			(*tmp_p)(i) = (*vec0)(idx0);
 			idx0 ++;
 		}
 		else if ((*vec0)(idx0) <= (*vec1)(idx1)) {
-			(*result_p)(i) = (*vec0)(idx0);
+			(*tmp_p)(i)= (*vec0)(idx0);
 			idx0 ++;
 		}
 		else {
-			(*result_p)(i) = (*vec1)(idx1);
+			(*tmp_p)(i) = (*vec1)(idx1);
 			idx1 ++;
 		}
 	}
 }
 
 // Recursive merge helper function
-void msort_op_h(HBTensor<float>* result_p,
+static void msort_op_h(HBTensor<float>* result_p,
+	HBTensor<float>* tmp_p,
 	HBTensor<float>* vec,
 	int32_t begin,
 	int32_t end) {
@@ -47,27 +48,37 @@ void msort_op_h(HBTensor<float>* result_p,
 	if (size <= 1) {
 		return;
 	}
-	int32_t mid = (begin + end) / 2;
-	msort_op_h(result_p, vec, begin, mid);
-	msort_op_h(result_p, vec, mid, end);
-	merge(result_p, vec, begin, mid, vec, mid, end);
+	int32_t mid =int32_t( (begin + end) / 2 );
+	std::cout<<"mid variable is "<<mid;
+	msort_op_h(result_p, tmp_p, vec, begin, mid);
+	msort_op_h(result_p, tmp_p, vec, mid, end);
+	merge(tmp_p, vec, begin, mid, vec, mid, end);
+	int32_t x = 0;
+	for (size_t i = begin; i < end; i++) {
+		(*result_p)(i) = (*tmp_p)(x);
+		x++;
+	}
 }
 
 extern "C" {
 
   __attribute__ ((noinline))  int tensorlib_vsort(
           hb_tensor_t* result_p,
+          hb_tensor_t* tmp_p,
           hb_tensor_t* self_p) {
 
     // Convert low level pointers to Tensor objects
     HBTensor<float> result(result_p);
     HBTensor<float> self(self_p);
-
+    HBTensor<float> tmp(tmp_p);
     // Start profiling
     bsg_cuda_print_stat_kernel_start();
-
-	msort_op_h(&result, &self, 0, self.numel());
-
+    
+    // Use a single tile only
+    if(__bsg_id == 0) {
+		msort_op_h(&result, &tmp, &self, 0, self.numel());
+	}
+	//quicksort(&result, 0, self.numel()-1);
     //   End profiling
     bsg_cuda_print_stat_kernel_end();
 
@@ -77,6 +88,6 @@ extern "C" {
   }
 
   // Register the HB kernel with emulation layer
-  HB_EMUL_REG_KERNEL(tensorlib_vsort, hb_tensor_t*, hb_tensor_t*)
+  HB_EMUL_REG_KERNEL(tensorlib_vsort, hb_tensor_t*, hb_tensor_t*, hb_tensor_t*)
 
 }

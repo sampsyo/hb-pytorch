@@ -453,8 +453,8 @@ inline void hb_tiled_foreach_conversion(HBTensor<scalar_dst> res,
     data[0] += strides[0] * start;
     data[1] += strides[1] * start;
     for (size_t idx = start; idx < end; idx++) {
-      scalar_dst* res_dp = (scalar_dst*)(data[0]);
-      scalar_src* input_dp = (scalar_src*)(data[1]);
+      __remote scalar_dst* res_dp = (__remote scalar_dst*)(data[0]);
+      __remote scalar_src* input_dp = (__remote scalar_src*)(data[1]);
       *res_dp = functor(*input_dp);
       data[0] += strides[0];
       data[1] += strides[1];
@@ -468,8 +468,8 @@ inline void hb_tiled_foreach_conversion(HBTensor<scalar_dst> res,
     size_t end = start + len_per_tile;
     end = (end > res.numel())  ? res.numel() : end;
     for (size_t idx = start; idx < end; idx++) {
-      scalar_dst* res_dp = (scalar_dst*)(data[0] + offset_calc(idx, res));
-      scalar_src* input_dp = (scalar_src*)(data[1] + offset_calc(idx, input));
+      __remote scalar_dst* res_dp = (__remote scalar_dst*)(data[0] + offset_calc(idx, res));
+      __remote scalar_src* input_dp = (__remote scalar_src*)(data[1] + offset_calc(idx, input));
       *res_dp = functor(*input_dp);
     }
   }

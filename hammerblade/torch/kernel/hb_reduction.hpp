@@ -93,7 +93,7 @@ inline void binary_reduction_simple(HBTensor<scalar_t> out,
     //-----------------------------
     hb_tiled_for(in.numel(), [&](size_t idx) {
       // XXX: when offloading through reduction path, strides are measured in numel
-      scalar_t* in_dp = (scalar_t*)(data[1] + strides[1] * idx * sizeof(scalar_t));
+      __remote scalar_t* in_dp = (__remote scalar_t*)(data[1] + strides[1] * idx * sizeof(scalar_t));
       reduce(result, *in_dp);
     });
   } else {
@@ -102,7 +102,7 @@ inline void binary_reduction_simple(HBTensor<scalar_t> out,
     //-----------------------------
     hb_tiled_for(in.numel(), [&](size_t idx) {
       // XXX: when offloading through reduction path, strides are measured in numel
-      scalar_t* in_dp = (scalar_t*)(data[1] + offset_calc(idx, in) * sizeof(scalar_t));
+      __remote scalar_t* in_dp = (__remote scalar_t*)(data[1] + offset_calc(idx, in) * sizeof(scalar_t));
       reduce(result, *in_dp);
     });
   }
@@ -115,7 +115,7 @@ inline void binary_reduction_simple(HBTensor<scalar_t> out,
       result += buffer[idx];
     }
     // produce final result
-    scalar_t* out_dp = (scalar_t*)(data[0]);
+    __remote scalar_t* out_dp = (__remote scalar_t*)(data[0]);
     *out_dp = project(result);
   }
 

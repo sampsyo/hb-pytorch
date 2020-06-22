@@ -21,9 +21,9 @@ extern "C" {
     int32_t padding_idx = *padding_idx_p;
     int32_t num_weights = *num_weights_p;
     int32_t numel = *numel_p;
-    float* grad_weight_data = (float*)grad_weight.data_ptr();
-    float* grad_data = (float*)grad.data_ptr();
-    int32_t* index_data = (int32_t*)index.data_ptr();
+    __remote float* grad_weight_data = (__remote float*)grad_weight.data_ptr();
+    __remote float* grad_data = (__remote float*)grad.data_ptr();
+    __remote int32_t* index_data = (__remote int32_t*)index.data_ptr();
 
     bsg_cuda_print_stat_kernel_start();
 
@@ -32,8 +32,8 @@ extern "C" {
         int32_t k = index_data[i];
         if (k >= 0 && k < num_weights) {
           float scale = 1.0;
-          float* dst = grad_weight_data + k * grad_weight.get_strides()[0];
-          float* src = grad_data + i * grad.get_strides()[0];
+          __remote float* dst = grad_weight_data + k * grad_weight.get_strides()[0];
+          __remote float* src = grad_data + i * grad.get_strides()[0];
           for (size_t j=0; j<numel; j++) {
             *dst += *src * scale;
             dst++;

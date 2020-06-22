@@ -69,7 +69,7 @@ inline void binary_reduction_simple(HBTensor<scalar_t> out,
                                     F1 reduce, F2 project) {
   hb_assert_msg(out.numel() == 1, "reduction_simple only handles trivial case");
 
-  char* data[2];
+  __remote char* data[2];
   data[0] = out.data_ptr();
   data[1] = in.data_ptr();
   scalar_t* buffer = (scalar_t*)g_reduction_buffer;

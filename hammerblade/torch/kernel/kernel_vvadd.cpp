@@ -25,9 +25,8 @@ extern "C" {
     if (__bsg_id == 0) {
       // Tutorial TODO:
       // add elements from self and other together -- put the result in result
-      for (size_t i = 0; i < self.numel() - 1; i=i+2) {
+      for (size_t i = 0; i < self.numel(); i=i++) {
         result(i) = self(i) + other(i);
-        result(i+1) = self(i+1) + other(i+1);
       }
     }
 

@@ -312,9 +312,9 @@ __attribute__((noinline)) void hb_tiled_foreach_impl(
       HBTensor<scalar_t> res,
       HBTensor<scalar_t> input,
       HBTensor<scalar_t> other,
-      __remote float* NOALIAS resptr,
-      __remote float* NOALIAS inputptr,
-      __remote float* NOALIAS otherptr,
+      __remote scalar_t* NOALIAS resptr,
+      __remote scalar_t* NOALIAS inputptr,
+      __remote scalar_t* NOALIAS otherptr,
       F functor) {
   // is_trivial_1d
   if(res.ndim() == 1) {
@@ -322,9 +322,9 @@ __attribute__((noinline)) void hb_tiled_foreach_impl(
     // collect metadata
     //-----------------------------
     uint32_t strides[3];
-    strides[0] = (res.get_strides())[0];
-    strides[1] = (input.get_strides())[0];
-    strides[2] = (other.get_strides())[0];
+    strides[0] = (res.get_strides())[0] / sizeof(scalar_t);
+    strides[1] = (input.get_strides())[0] / sizeof(scalar_t);
+    strides[2] = (other.get_strides())[0] / sizeof(scalar_t);
 
     //-----------------------------
     // iterating over all elementes
@@ -335,7 +335,8 @@ __attribute__((noinline)) void hb_tiled_foreach_impl(
     end = (end > res.numel())  ? res.numel() : end;
     #pragma unroll 4
     for (size_t idx = start; idx < end; idx++) {
-      resptr[idx*strides[0]] = functor(inputptr[idx*strides[1]], otherptr[idx*strides[2]]);
+      resptr[idx*strides[0]] = functor(inputptr[idx*strides[1]],
+                                       otherptr[idx*strides[2]]);
     }
   } else {
     //-----------------------------
@@ -360,9 +361,9 @@ void hb_tiled_foreach(HBTensor<scalar_t> res,
                                HBTensor<scalar_t> other,
                                F functor) {
   hb_tiled_foreach_impl(res, input, other,
-                        (__remote float*) res.data_ptr(),
-                        (__remote float*) input.data_ptr(),
-                        (__remote float*) other.data_ptr(),
+                        (__remote scalar_t*) res.data_ptr(),
+                        (__remote scalar_t*) input.data_ptr(),
+                        (__remote scalar_t*) other.data_ptr(),
                         functor);
 }
 

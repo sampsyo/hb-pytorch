@@ -333,8 +333,7 @@ __attribute__((noinline)) void hb_tiled_foreach_impl(
     size_t start = len_per_tile * __bsg_id;
     size_t end = start + len_per_tile;
     end = (end > res.numel())  ? res.numel() : end;
-    #pragma unroll 4
-    for (size_t idx = start; idx < end; idx++) {
+    UNROLL(4) for (size_t idx = start; idx < end; idx++) {
       resptr[idx*strides[0]] = functor(inputptr[idx*strides[1]],
                                        otherptr[idx*strides[2]]);
     }

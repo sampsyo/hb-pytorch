@@ -8,6 +8,11 @@ void* g_reduction_buffer;
 // common barrier for all kernels
 #ifdef HB_EMUL
 bsg_barrier g_barrier;
+#elif HB_SILICON_V0
+INIT_TILE_GROUP_BARRIER(r_barrier, c_barrier,
+                        0, bsg_tiles_X-1, 0, bsg_tiles_Y-1);
+
+bsg_legacy_barrier g_barrier;
 #else
 bsg_barrier<bsg_tiles_X, bsg_tiles_Y> g_barrier;
 #endif // HB_EMUL

@@ -23,11 +23,26 @@
 #define BSG_POD_DIM 1
 #include "bsg_manycore.h"
 #include "bsg_set_tile_x_y.h"
-#include "bsg_tile_group_barrier.hpp"
 #include "hb_tensor.hpp"
 #include <hb_assert.hpp>
 #include <hb_tiled_for.hpp>
 #include <hb_common.hpp>
+
+#ifdef HB_SILICON_V0
+#include "bsg_tile_group_barrier.h"
+
+extern bsg_row_barrier r_barrier;
+extern bsg_col_barrier c_barrier;
+
+struct bsg_legacy_barrier {
+  void reset() {}
+  void sync() {
+    bsg_tile_group_barrier(&r_barrier, &c_barrier);
+  }
+};
+#else
+#include "bsg_tile_group_barrier.hpp"
+#endif
 
 __remote void* hb_memcpy(__remote void* NOALIAS dest,
                          const __remote void* NOALIAS src,
@@ -47,8 +62,12 @@ __remote void* hb_memcpy(__remote void* NOALIAS dest,
 #include <hammerblade_emul.hpp>
 
 extern void* g_reduction_buffer;
+
+// Barrier declaration
 #ifdef HB_EMUL
 extern bsg_barrier g_barrier;
+#elif HB_SILICON_V0
+extern bsg_legacy_barrier g_barrier;
 #else
 extern bsg_barrier<bsg_tiles_X, bsg_tiles_Y> g_barrier;
 #endif // HB_EMUL

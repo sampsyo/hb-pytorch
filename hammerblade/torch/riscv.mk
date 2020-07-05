@@ -63,6 +63,8 @@ endif
 
 ifdef HB_SILICON_V0
 include $(BSG_F1_DIR)/Makefile.machine.include
+
+RISCV_GXX_EXTRA_OPTS += -DHB_SILICON_V0
 else
 include $(BSG_F1_DIR)/machine.mk
 endif

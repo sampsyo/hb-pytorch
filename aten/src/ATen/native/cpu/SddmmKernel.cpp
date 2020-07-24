@@ -13,14 +13,21 @@ void inline sddmm_kernel(
     const Tensor& c_dense,
     Tensor& out_tensor) {
 
-    int* a_idx = a_sparse._indices().data_ptr<int32_t>();
+    auto a_indices = a_sparse._indices();
+
+    int* a_idx = a_indices.data_ptr<int32_t>();
     for (int i = 0; i < a_sparse.numel(); i++){
       printf("a_idx(%i)=%i", i, a_idx[i]);
     }
+
+
     scalar_t* b = b_dense.data_ptr<scalar_t>();
     scalar_t* c = c_dense.data_ptr<scalar_t>();
     scalar_t* out = out_tensor.data_ptr<scalar_t>();
 
+    auto a_idx_stride = a_indices.stride(1);
+    auto b_stride = b_sparse.stride(1);
+    auto c_stride = c_sparse.stride(1);
 
     int dot_len = b_dense.size(1);
     for (int k = 0; k < a_sparse._nnz(); k++) {
@@ -44,9 +51,9 @@ Tensor sddmm_cpu(
   AT_DISPATCH_ALL_TYPES(a_sparse.scalar_type(), "sddmm_cpu", [&] {
     sddmm_kernel<scalar_t>(a_sparse, b_dense, c_dense, out_dense);
   });
-
   return out_dense;
 }
+
 
 } // namespace native
 } // namespace at

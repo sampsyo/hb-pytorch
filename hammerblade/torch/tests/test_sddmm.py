@@ -21,7 +21,7 @@ def sddmm_expected(a, b, c):
     ).to_dense()
 
 def _test_torch_sddmm(a, b, c):
-    expected_tensor = sddmm_expected(a, b, c)
+    expected_tensor = torch.sddmm(a, b, c)
     ah = a.hammerblade()
     bh = b.hammerblade()
     ch = c.hammerblade()

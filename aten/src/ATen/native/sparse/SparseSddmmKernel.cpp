@@ -1,10 +1,12 @@
 #include <ATen/ATen.h>
-#include <ATen/native/DispatchStub.h>
-#include <ATen/SparseTensorUtils.h>
-#include <c10/util/Optional.h>
+#include <ATen/NativeFunctions.h>
+#include <ATen/native/sparse/SparseTensorMath.h>
+#include <ATen/native/hammerblade/Offload.h>
 
 namespace at {
 namespace native {
+
+using namespace at::sparse;
 
 template <typename scalar_t>
 void inline sddmm_kernel(
@@ -29,14 +31,12 @@ void inline sddmm_kernel(
 }
 
 Tensor sddmm_cpu(
-  const Tensor& a_sparse,
+  const SparseTensor& a_sparse,
   const Tensor& b_dense,
   const Tensor& c_dense) {
   Tensor out_dense = at::zeros(a_sparse.sizes(), {at::requires_grad().device(at::kCPU).dtype(at::kFloat)});
 
-  AT_DISPATCH_ALL_TYPES(a_sparse.scalar_type(), "sddmm_cpu", [&] {
-    sddmm_kernel<float>(a_sparse, b_dense, c_dense, out_dense);
-  });
+  sddmm_kernel<float>(a_sparse, b_dense, c_dense, out_dense);
   return out_dense;
 }
 

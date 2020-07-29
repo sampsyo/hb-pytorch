@@ -8,6 +8,7 @@ torch.manual_seed(42)
 
 def _test_torch_dsmm(a, bT):
     expected_tensor = (a@bT.t().to_dense())
+    expected_tensor_cpu = torch.dstmp(a, bT)
     print(expected_tensor)
     ah = a.hammerblade()
     bTh = bT.hammerblade()
@@ -17,6 +18,7 @@ def _test_torch_dsmm(a, bT):
     print(got_tensor)
     print(expected_tensor)
     assert got_device == torch.device("hammerblade")
+    assert torch.equal(got_tensor, expected_tensor_cpu)
     assert torch.equal(got_tensor, expected_tensor)
 
 

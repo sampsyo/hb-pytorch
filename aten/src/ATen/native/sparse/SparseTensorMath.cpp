@@ -1181,4 +1181,43 @@ Tensor _sparse_sum_backward_cpu(const Tensor& grad_, const SparseTensor& input_,
   }
 }
 
+template <typename scalar_t>
+void sddmm_kernel_cpu(
+  const SparseTensor& a_sparse_tensor,
+  const Tensor& b_dense_tensor,
+  const Tensor& c_dense_tensor,
+  Tensor& out_tensor){
+  auto indices = a_sparse_tensor._indices();
+  indices.copy_(a_sparse_tensor._indices());
+
+  auto a_indices = indices.accessor<int64_t, 2>();
+  auto b_dense = b_dense_tensor.accessor<scalar_t, 2>();
+  auto c_dense = c_dense_tensor.accessor<scalar_t, 2>();
+  auto out = out_tensor.accessor<scalar_t, 2>();
+
+  int dot_len = b_dense.size(1);
+  for (int k = 0; k < a_sparse_tensor._nnz(); k++) {
+    int ai = a_indices[0][k]; //0
+    int aj = a_indices[1][k];  //1
+
+    float dot_total = 0;
+    for (int i = 0; i < dot_len; i++)
+      dot_total += b_dense[ai][i] * c_dense[i][aj];
+      
+    out[ai][aj] = dot_total;
+  }
+}
+Tensor sddmm_cpu(
+  const SparseTensor& a_sparse_tensor,
+  const Tensor& b_dense_tensor,
+  const Tensor& c_dense_tensor) {
+  Tensor out_tensor = at::zeros(a_sparse_tensor.sizes(), {at::requires_grad().device(at::kCPU).dtype(at::kFloat)});
+  AT_DISPATCH_ALL_TYPES(b_dense_tensor.scalar_type(), "sddmm_cpu", [&]{
+    sddmm_kernel_cpu<scalar_t>(a_sparse_tensor, b_dense_tensor, c_dense_tensor, out_tensor);
+  });
+  return out_tensor;
+}
+
+
+
 }} // namespace at::native

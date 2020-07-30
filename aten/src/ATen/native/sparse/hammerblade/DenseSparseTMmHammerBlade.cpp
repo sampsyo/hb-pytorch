@@ -21,14 +21,14 @@ Tensor _to_csc(const IntTensor& aTrowIndices, int64_t dim, int64_t nnz) {
 
 Tensor dstmm_hb(const Tensor& a_dense, const SparseTensor& bT_sparse) {
 
-  TORCH_CHECK(a_dense.is_hammerblade(), "DenseSparseMm: expected 'a' to be a HammerBlade tensor");
-  TORCH_CHECK(bT_sparse.is_hammerblade(), "DenseSparseMm: expected 'b' to be a HammerBlade tensor");
+  TORCH_CHECK(a_dense.is_hammerblade(), "DenseSparseTMm: expected 'a' to be a HammerBlade tensor");
+  TORCH_CHECK(bT_sparse.is_hammerblade(), "DenseSparseTMm: expected 'b' to be a HammerBlade tensor");
 
   if ( a_dense.scalar_type() != ScalarType::Float
     || bT_sparse.scalar_type() != ScalarType::Float ) {
-    AT_ERROR("HammerBlade dsmp is implemented for Float only"); 
+    AT_ERROR("HammerBlade dstmm is implemented for Float only"); 
   }
-  TORCH_CHECK(bT_sparse.sparse_dim() == 2, "We do not support hybrid sparse tensor for 'b' (sparse) in HammerBlade DenseSparseMm!");
+  TORCH_CHECK(bT_sparse.sparse_dim() == 2, "We do not support hybrid sparse tensor for 'b' (sparse) in HammerBlade DenseSparseTMm!");
   TORCH_CHECK(a_dense.dim() == 2 && bT_sparse.dim() == 2, "Expected 2D matrixes for 'a' and 'b', but got ", a_dense.dim(), " and ", bT_sparse.dim(), " tensors");
   TORCH_CHECK(a_dense.size(1) == bT_sparse.size(1), "Matrix multiply dimension mismatch: 'a' dim 1 = ", a_dense.size(1), ", 'b' dim 0 = ", bT_sparse.size(1));
   

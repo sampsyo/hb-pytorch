@@ -28,8 +28,6 @@ def _test_torch_sddmm(a, b, c):
     got_hb = torch.sddmm(ah, bh, ch)
     got_device = got_hb.device
     got_tensor = got_hb.cpu()
-    print(got_tensor)
-    print(expected_tensor)
     assert got_device == torch.device("hammerblade")
     assert torch.equal(got_tensor, expected_tensor)
 

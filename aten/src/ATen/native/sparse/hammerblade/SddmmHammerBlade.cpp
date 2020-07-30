@@ -25,11 +25,11 @@ Tensor sddmm_hb(const SparseTensor& sample, const Tensor& b, const Tensor& c) {
   TORCH_CHECK(b.dim() == 2 && c.dim() == 2, "Expected 2D matrixes for 'mat1' and 'mat2', but got ", b.dim(), " and ", c.dim(), " tensors");
   TORCH_CHECK(b.size(1) == c.size(0), "Matrix multiply dimension mismatch: 'mat1' dim 1 = ", b.size(1), ", 'mat2' dim 0 = ", c.size(0));
   
-  LongTensor indices = sample._indices();
+  IntTensor indices = sample._indices();
   TORCH_CHECK(indices.dtype() == at::kInt, "Indices on HammerBlade should be int32, but got ", indices.dtype());
-  LongTensor colIndices = indices.select(0, 1);
+  IntTensor colIndices = indices.select(0, 1);
   TORCH_CHECK(colIndices.is_hammerblade(), "colIndices must be HammerBlade Tensor");
-  LongTensor rowIndices = indices.select(0, 0);
+  IntTensor rowIndices = indices.select(0, 0);
   TORCH_CHECK(rowIndices.is_hammerblade(), "rowIndices must be HammerBlade Tensor");
   TORCH_CHECK(b.size(0) == sample.size(0) && c.size(1) == sample.size(1),"Sddmm sample dimension mismatch: sample was shape ",sample.size(0)," by ",sample.size(1),", but b@c is shape ",b.size(0)," by ",c.size(1));
 

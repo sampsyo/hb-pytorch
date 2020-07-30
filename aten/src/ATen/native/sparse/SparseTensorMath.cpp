@@ -1187,9 +1187,10 @@ void sddmm_kernel_cpu(
   const Tensor& b_dense_tensor,
   const Tensor& c_dense_tensor,
   Tensor& out_tensor){
-  auto indices = a_sparse_tensor._indices();
-  indices.copy_(a_sparse_tensor._indices());
 
+
+
+  auto indices = a_sparse_tensor._indices();
   auto a_indices = indices.accessor<int64_t, 2>();
   auto b_dense = b_dense_tensor.accessor<scalar_t, 2>();
   auto c_dense = c_dense_tensor.accessor<scalar_t, 2>();

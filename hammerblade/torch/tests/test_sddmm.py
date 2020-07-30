@@ -1,6 +1,6 @@
 """
 Unit tests for sddmm kernel
-06/30/2020 Andrew Pareles (amp342@cornell.edu)
+07/30/2020 Andrew Pareles (amp342@cornell.edu)
 """
 import torch
 

@@ -21,7 +21,8 @@ def sddmm_expected(a, b, c):
     ).to_dense()
 
 def _test_torch_sddmm(a, b, c):
-    expected_tensor = torch.sddmm(a, b, c)
+    expected_tensor_cpu = torch.sddmm(a, b, c)
+    expected_tensor = sddmm_expected(a, b, c)
     ah = a.hammerblade()
     bh = b.hammerblade()
     ch = c.hammerblade()
@@ -29,6 +30,7 @@ def _test_torch_sddmm(a, b, c):
     got_device = got_hb.device
     got_tensor = got_hb.cpu()
     assert got_device == torch.device("hammerblade")
+    assert torch.equal(got_tensor, expected_tensor_cpu)
     assert torch.equal(got_tensor, expected_tensor)
 
 

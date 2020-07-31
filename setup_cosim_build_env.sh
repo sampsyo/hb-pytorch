@@ -41,13 +41,16 @@ else
   export BSG_MANYCORE_DIR=$BRG_BSG_BLADERUNNER_DIR/bsg_replicant/libraries
 fi
 
-# Build COSIM runtime library and simulation executable
-make -C $BRG_BSG_BLADERUNNER_DIR/bsg_replicant/testbenches/pytorch test_pytorch.log
-make -C $BRG_BSG_BLADERUNNER_DIR/bsg_replicant/testbenches/pytorch test_pytorch.debug.log
+export USE_HB_COSIM=1
 
-# For backward compatibility.
-# Remove this with bsg_bladerunner's next version. Current is v4.0.0.
-make -C $BRG_BSG_BLADERUNNER_DIR/bsg_replicant/testbenches/python test_loader
+# Build COSIM runtime library and simulation executable if not using one of the
+# BRG servers -- on BRG servers we have global installed COSIM so SW side ppl
+# dont have to worry about COSIM installation
+if [[ "x${SETUP_BRG_HAMMERBLADE}" != "xyes" ]]; then
+  export BSG_MACHINE=4x4_fast_n_fake
+  export BSG_MACHINE_PATH=$BRG_BSG_BLADERUNNER_DIR/bsg_replicant/machines/$BSG_MACHINE
+  make -C $BRG_BSG_BLADERUNNER_DIR/bsg_replicant/examples/python test_python.log
+fi
 
 export HB_KERNEL_DIR=$DIR/hammerblade/torch
 

@@ -1297,4 +1297,54 @@ Tensor dstmm_cpu(
 }
 
 
+constexpr int cpu_dense_input_batch_size_dim = 0;
+constexpr int cpu_dense_input_channels_dim = 1;
+constexpr int cpu_sparse_weight_channels_dim = 0;
+constexpr int cpu_dense_output_channels_dim = 1;
+
+static std::vector<int64_t> cpu_sparse_conv_output_size(
+    IntArrayRef input_size, IntArrayRef weight_size,
+    IntArrayRef padding, IntArrayRef stride, IntArrayRef dilation,
+    int64_t groups) {
+  auto dim = input_size.size();
+  std::vector<int64_t> output_size(dim);
+  output_size[0] = input_size[cpu_dense_input_batch_size_dim];
+  output_size[1] = weight_size[cpu_sparse_weight_channels_dim];
+  for (size_t d = 2; d < dim; ++d) {
+    auto kernel = dilation[d - 2] * (weight_size[d] - 1) + 1;
+    output_size[d] = (input_size[d] + (2 * padding[d - 2])
+                        - kernel) / stride[d - 2] + 1;
+  }
+  return output_size;
+}
+
+Tensor sparse_convolution(const Tensor& input_t, const SparseTensor& weight_t, const Tensor& bias_t,
+    IntArrayRef padding, IntArrayRef stride,
+    IntArrayRef dilation, int64_t groups) {
+
+  auto output_t = at::zeros(
+                    cpu_sparse_conv_output_size(input_t.sizes(), weight_t.sizes(),
+                                     padding, stride, dilation, groups),
+                    input_t.options());
+  /*
+  Sparse Convolution implementation for CPU.
+  */
+  return output_t;
+}
+
+Tensor mv_sparse(const SparseTensor& self, const Tensor& vec)
+{
+  TORCH_CHECK(self.ndimension() == 2 && 
+              vec.ndimension() == 1,
+              "mv: two tensor dim should be 2 and 1, but got ",
+              "SparseTensor Dim: ", self.ndimension(), "Tensor Dim: ", vec.ndimension());
+
+  TORCH_CHECK(vec.size(-1) == self.size(-1),
+              "mv: expected self.size(-1) == vec.size(-1)");
+
+  auto result = self.matmul(vec.unsqueeze(-1));
+
+  return result.squeeze(-1);
+}
+
 }} // namespace at::native

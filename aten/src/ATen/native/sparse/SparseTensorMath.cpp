@@ -1241,29 +1241,28 @@ void dstmm_kernel(
     const Tensor& b_vals_tensor,
     Tensor& res_tensor //destination
   ) {
+  auto a = a_tensor.accessor<scalar_t, 2>();
+  auto b_csc = b_csc_tensor.accessor<int64_t, 1>();
+  auto b_rows = b_rows_tensor.accessor<int64_t, 1>();
+  auto b_vals = b_vals_tensor.accessor<scalar_t, 1>();
+  auto res = res_tensor.accessor<scalar_t, 2>();
 
-    auto a = a_tensor.accessor<scalar_t, 2>();
-    auto b_csc = b_csc_tensor.accessor<int64_t, 1>();
-    auto b_rows = b_rows_tensor.accessor<int64_t, 1>();
-    auto b_vals = b_vals_tensor.accessor<scalar_t, 1>();
-    auto res = res_tensor.accessor<scalar_t, 2>();
+  auto a_nrows = res.size(0);
+  auto b_ncols = res.size(1);
+  auto nnz = b_vals.size(0);
 
-    auto a_nrows = res.size(0);
-    auto b_ncols = res.size(1);
-    auto nnz = b_vals.size(0);
-
-    float sum;
-    for (int a_row = 0; a_row < a_nrows; a_row++){
-      for (int b_col = 0; b_col < b_ncols; b_col++){
-        sum = 0;
-        for (int b_row_idx = b_csc[b_col]; b_row_idx < b_csc[b_col+1]; b_row_idx++){
-          int b_row = b_rows[b_row_idx];
-          float b_val = b_vals[b_row_idx];
-          sum += b_val * a[a_row][b_row]; 
-        }
-        res[a_row][b_col] = sum;
+  float sum;
+  for (int a_row = 0; a_row < a_nrows; a_row++){
+    for (int b_col = 0; b_col < b_ncols; b_col++){
+      sum = 0;
+      for (int b_row_idx = b_csc[b_col]; b_row_idx < b_csc[b_col+1]; b_row_idx++){
+        int b_row = b_rows[b_row_idx];
+        float b_val = b_vals[b_row_idx];
+        sum += b_val * a[a_row][b_row]; 
       }
+      res[a_row][b_col] = sum;
     }
+  }
 }
 Tensor dstmm_cpu(
   const Tensor& a_dense,

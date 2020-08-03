@@ -412,6 +412,7 @@
   variants: function, method
   dispatch:
     CPU: llcopy_to_hb
+    SparseCPU: llcopy_sparse_to_hb
 
 - func: as_strided(Tensor(a) self, int[] size, int[] stride, int? storage_offset=None) -> Tensor(a)
   variants: function, method
@@ -1831,6 +1832,10 @@
   dispatch:
     CUDA: miopen_depthwise_convolution_backward_weight
 
+- func: sparse_convolution(Tensor self, Tensor weight, Tensor? bias, int[] padding, int[] stride, int[] dilation, int groups) -> Tensor
+  dispatch:
+    SparseCPU: sparse_convolution
+
 - func: hb_convolution_transpose(Tensor self, Tensor weight, Tensor? bias, int[] padding, int[] output_padding, int[] stride, int[] dilation, int groups) -> Tensor
   dispatch:
     HammerBlade: hb_convolution_transpose
@@ -1956,7 +1961,8 @@
   dispatch:
     CPU: legacy::cpu::_th_mv
     CUDA: legacy::cuda::_th_mv
-    SparseHammerBlade: _sparse_mv_hb
+    SparseCPU: mv_sparse
+    SparseHammerBlade: mv_hb_sparse
   supports_named_tensor: True
 
 - func: mv.out(Tensor self, Tensor vec, *, Tensor(a!) out) -> Tensor(a!)
@@ -1991,6 +1997,7 @@
     CPU: batch_norm_cpu
     CUDA: batch_norm_cuda
     MkldnnCPU: mkldnn_batch_norm
+    HammerBlade: batch_norm_hb
 
 - func: batch_norm_stats(Tensor input, float eps) -> (Tensor, Tensor)
   dispatch:
@@ -2017,6 +2024,7 @@
   dispatch:
     CPU: batch_norm_backward_cpu
     CUDA: batch_norm_backward_cuda
+    HammerBlade: batch_norm_backward_hb
 
 - func: batch_norm_backward_reduce(Tensor grad_out, Tensor input, Tensor mean, Tensor invstd, Tensor? weight, bool input_g, bool weight_g, bool bias_g) -> (Tensor, Tensor, Tensor, Tensor)
   dispatch:

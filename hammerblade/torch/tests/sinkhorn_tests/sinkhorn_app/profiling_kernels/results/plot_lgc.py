@@ -129,8 +129,8 @@ def plot_bar(kernels, yticks, legend, title, outfile):
 if __name__ == "__main__":
     lgc_data = parse_table("august.txt")
     plot_bar(lgc_data, (0, 5, 10, 15, 20, 25), True,
-             'LGC-ISTA', 'lgc.pdf')
+             'LGC-ISTA', 'lgc.png')
 
     swmd_data = list(parse_csv('results.csv'))
     plot_bar(swmd_data, (0.00, 0.02, 0.04, 0.06, 0.08, 0.10), False,
-             'Sinkhorn WMD', 'swmd.pdf')
+             'Sinkhorn WMD', 'swmd.png')

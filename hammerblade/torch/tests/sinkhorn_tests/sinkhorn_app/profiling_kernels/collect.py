@@ -181,7 +181,7 @@ def collect(summary):
                 hb_total_time += hb_cycles_to_time(hb_cycles[kernel]) \
                     + hb_host_times[kernel]
                 hb_kern_energy += hb_energies[kernel]
-                cpu_kern_energy += cpu_time * CPU_TDP
+                cpu_kern_energy += (cpu_time - hb_host_times[kernel]) * CPU_TDP
             else:
                 # Where we don't have a kernel, charge us for CPU execution.
                 hb_total_time += cpu_time

@@ -132,5 +132,5 @@ if __name__ == "__main__":
              'LGC-ISTA', 'lgc.png')
 
     swmd_data = list(parse_csv('results.csv'))
-    plot_bar(swmd_data, (0.00, 0.02, 0.04, 0.06, 0.08, 0.10), False,
+    plot_bar(swmd_data, (0.00, 0.004, 0.008, 0.012, 0.016, 0.020), False,
              'Sinkhorn WMD', 'swmd.png')

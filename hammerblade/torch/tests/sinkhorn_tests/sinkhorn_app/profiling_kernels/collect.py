@@ -14,7 +14,7 @@ HB_FREQ = 10 ** 9  # 1 GHz.
 HB_MACHINE_FRAC = 16  # Simulating 1/16th of the machine.
 HB_DATA_FRAC = 16  # Used this fraction of the CPU's data.
 
-CPU_TDP = 165  # Xeon power (watts).
+CPU_TDP = 150  # Xeon power (watts).
 
 
 def cycles_from_stats(stats):

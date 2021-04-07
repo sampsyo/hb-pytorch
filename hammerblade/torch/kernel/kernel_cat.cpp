@@ -42,7 +42,7 @@ int tensorlib__cat( hb_tensor_t** tensors_p, hb_tensor_t* result_p,
   bsg_saif_start();
 
   for(int o = __bsg_id; o < outer; o = o + num_threads) {
-    offset = o * offset_strides;
+    offset = o; // WTF * offset_strides;
     for(int j = 0; j < length; j++) {
       HBTensor<float> input(tensors_p[j]);
       float *input_data = (float*)input.data_ptr();

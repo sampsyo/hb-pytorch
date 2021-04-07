@@ -6632,7 +6632,7 @@
   dispatch:
     HammerBlade: vincr_hb
 
-- func: auction(Tensor self, Tensor cost) -> Tensor
+- func: auction(Tensor self) -> Tensor
   use_c10_dispatcher: full
   variants: function, method
   dispatch:

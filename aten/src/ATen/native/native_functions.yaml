@@ -6632,6 +6632,12 @@
   dispatch:
     HammerBlade: vincr_hb
 
+- func: auction(Tensor self, Tensor cost) -> Tensor
+  use_c10_dispatcher: full
+  variants: function, method
+  dispatch:
+    HammerBlade: auction_hb
+
 # Tutorial TODO:
 # Create an ATen operator vvadd, which takes 2 input arguments
 # self, and other, and produce a Tensor

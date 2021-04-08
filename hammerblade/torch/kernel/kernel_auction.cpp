@@ -11,7 +11,21 @@ extern "C" {
 
     bsg_cuda_print_stat_kernel_start();
 
-    // TODO
+    uint32_t X = cost_ten.get_sizes()[0];
+    uint32_t Y = cost_ten.get_sizes()[1];
+
+    for (size_t x = 0; x < X; ++x) {
+        uint32_t argmax = 0;
+        float valmax = 0;
+        for (size_t y = 0; y < Y; ++y) {
+            float val = cost_ten(x, y);
+            if (val >= valmax) {
+                valmax = val;
+                argmax = y;
+            }
+        }
+        result_ten(x, 0) = argmax;
+    }
 
     bsg_cuda_print_stat_kernel_end();
 

@@ -7,12 +7,12 @@
 
 namespace at { namespace native {
 
-Tensor& auction_hb(const Tensor& cost) {
+Tensor auction_hb(const Tensor& cost) {
   Tensor result = at::empty(cost.sizes(), cost.options());
-  auto iter = TensorIterator::binary_op(result, cost,
+  auto iter = TensorIterator::unary_op(result, cost,
     /*check_mem_overlap=*/true);
   AT_DISPATCH_FLOAT_TYPE_ONLY(iter.dtype(), "auction", [&]() {
-      offload_op_binary(iter, "tensorlib_auction");
+      offload_op_unary(iter, "tensorlib_auction");
       });
   return result;
 }

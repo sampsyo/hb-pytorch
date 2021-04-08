@@ -11,8 +11,8 @@ extern "C" {
 
     bsg_cuda_print_stat_kernel_start();
 
-    uint32_t X = cost_ten.get_sizes()[0];
-    uint32_t Y = cost_ten.get_sizes()[1];
+    uint32_t X = cost_ten.dim(0);
+    uint32_t Y = cost_ten.dim(1);
 
     for (size_t x = 0; x < X; ++x) {
         uint32_t argmax = 0;

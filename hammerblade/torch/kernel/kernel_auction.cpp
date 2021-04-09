@@ -13,6 +13,7 @@ extern "C" {
     size_t* buffer = (size_t*)g_reduction_buffer;
 
     bsg_cuda_print_stat_kernel_start();
+    bsg_saif_start();
 
     uint32_t X = cost.dim(0);
     uint32_t Y = cost.dim(1);
@@ -76,6 +77,7 @@ extern "C" {
         g_barrier.sync();
     }
 
+    bsg_saif_end();
     bsg_cuda_print_stat_kernel_end();
 
     g_barrier.sync();

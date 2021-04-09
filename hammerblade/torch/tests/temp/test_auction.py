@@ -2,10 +2,11 @@ import torch
 
 
 def do_auction():
-    cost = torch.Tensor([[1, 2, 3],
-                         [4, 5, 6],
-                         [7, 8, 0]])
+    cost = torch.Tensor([[8, 2, 3],
+                         [4, 1, 6],
+                         [7, 8, 1]])
 
+    print('123 hi')
     cost_hb = cost.hammerblade()
 
     print('hi')

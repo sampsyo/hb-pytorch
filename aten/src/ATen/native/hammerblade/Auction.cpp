@@ -8,12 +8,8 @@
 namespace at { namespace native {
 
 Tensor auction_hb(const Tensor& cost) {
-  Tensor result = at::empty(cost.sizes(), cost.options());
-  auto iter = TensorIterator::unary_op(result, cost,
-    /*check_mem_overlap=*/true);
-  AT_DISPATCH_FLOAT_TYPE_ONLY(iter.dtype(), "auction", [&]() {
-      offload_op_unary(iter, "tensorlib_auction");
-      });
+  Tensor result = at::empty({cost.size(0)}, {at::device(at::kHAMMERBLADE).dtype(at::kFloat)});
+  hb_offload_kernel(result, cost, "tensorlib_auction");
   return result;
 }
 
